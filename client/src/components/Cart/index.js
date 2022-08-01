@@ -3,9 +3,6 @@ import CartItem from '../CartItem';
 import Auth from '../../utils/auth';
 import './style.css';
 
-/*import { useStoreContext } from '../../utils/GlobalState';
-
-import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from "../../utils/actions";*/
 import { idbPromise } from "../../utils/helpers";
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +14,6 @@ import {
 } from '../../utils/redux_state';
 
 const Cart = () => {
-  //const [state, dispatch] = useStoreContext();
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const cartOpen = useSelector(selectCartOpen);
@@ -25,7 +21,6 @@ const Cart = () => {
   useEffect(() => {
     async function getCart() {
       const cart = await idbPromise('cart', 'get');
-      /*dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });*/
       dispatch(ADD_MULTIPLE_TO_CART({ products: [...cart] }));
     };
 
@@ -35,7 +30,6 @@ const Cart = () => {
   }, [cart.length, dispatch]);
 
   function toggleCart() {
-    /*dispatch({ type: TOGGLE_CART });*/
     dispatch(TOGGLE_CART());
   }
 

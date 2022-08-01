@@ -5,14 +5,6 @@ import { useQuery } from '@apollo/client';
 import { QUERY_PRODUCTS } from '../utils/queries';
 import spinner from '../assets/spinner.gif';
 
-/*import { useStoreContext } from "../utils/GlobalState";
-import {
-  REMOVE_FROM_CART,
-  UPDATE_CART_QUANTITY,
-  ADD_TO_CART,
-  UPDATE_PRODUCTS,
-} from '../utils/actions';*/
-
 import { useDispatch, useSelector } from 'react-redux';
 import {
   REMOVE_FROM_CART,
@@ -27,15 +19,13 @@ import { idbPromise } from "../utils/helpers";
 
 import Cart from '../components/Cart';
 
-function Detail (props) {
-  //const [state, dispatch] = useStoreContext();
+function Detail(props) {
   const { id } = useParams();
 
   const [currentProduct, setCurrentProduct] = useState({})
 
   const { loading, data } = useQuery(QUERY_PRODUCTS);
 
-  //const { products, cart } = state;
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const cart = useSelector(selectCart);
@@ -45,11 +35,6 @@ function Detail (props) {
     const itemInCart = cart.find((cartItem) => cartItem?._id === id)
 
     if (itemInCart) {
-      /*dispatch({
-        type: UPDATE_CART_QUANTITY,
-        _id: id,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
-      });*/
       dispatch(UPDATE_CART_QUANTITY({
         _id: id,
         purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
@@ -60,23 +45,13 @@ function Detail (props) {
         purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
       });
     } else {
-      /*dispatch({
-        type: ADD_TO_CART,
-        product: { ...currentProduct, purchaseQuantity: 1 }
-      });*/
       dispatch(ADD_TO_CART({ product: { ...currentProduct, purchaseQuantity: 1 } }));
       // if product isn't in the cart yet, add it to the current shopping cart in IndexedDB
       idbPromise('cart', 'put', { ...currentProduct, purchaseQuantity: 1 });
     }
-
-
   };
 
   const removeFromCart = () => {
-    /*dispatch({
-      type: REMOVE_FROM_CART,
-      _id: currentProduct._id
-    });*/
     dispatch(REMOVE_FROM_CART({ _id: currentProduct._id }));
 
     // upon removal from cart, delete the item from IndexedDB using the `currentProduct._id` to locate what to remove
@@ -90,10 +65,6 @@ function Detail (props) {
     }
     // retrieved from server
     else if (data) {
-      /*dispatch({
-        type: UPDATE_PRODUCTS,
-        products: data.products
-      });*/
       dispatch(UPDATE_PRODUCTS({ products: data.products }));
 
       data.products.forEach((product) => {
@@ -103,10 +74,6 @@ function Detail (props) {
     // get cache from idb
     else if (!loading) {
       idbPromise('products', 'get').then((indexedProducts) => {
-        /*dispatch({
-          type: UPDATE_PRODUCTS,
-          products: indexedProducts
-        });*/
         dispatch(UPDATE_PRODUCTS({ products: indexedProducts }));
       });
     }
