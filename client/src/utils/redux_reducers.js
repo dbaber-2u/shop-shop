@@ -2,29 +2,37 @@
 export const stateReducers = {
     // if action type value is the value of `UPDATE_PRODUCTS`, return a new state object with an updated products array
     UPDATE_PRODUCTS: (state, action) => {
-        state.products = [...action.products];
+        if (action.payload.products) {
+            state.products = [...action.payload.products];
+        }
     },
     // if action type value is the value of `UPDATE_CATEGORIES`, return a new state object with an updated categories array
     UPDATE_CATEGORIES: (state, action) => {
-        state.categories = [...action.categories];
+        if (action.payload.categories) {
+            state.categories = [...action.payload.categories];
+        }
     },
 
     UPDATE_CURRENT_CATEGORY: (state, action) => {
-        state.currentCategory = action.currentCategory;
+        state.currentCategory = action.payload.currentCategory;
     },
 
     ADD_TO_CART: (state, action) => {
         state.cartOpen = true;
-        state.cart = [...state.cart, action.cart];
+        if (action.payload.product) {
+            state.cart = [...state.cart, action.payload.product];
+        }
     },
 
     ADD_MULTIPLE_TO_CART: (state, action) => {
-        state.cart = [...state.cart, ...action.products]
+        if (action.payload.products) {
+            state.cart = [...state.cart, ...action.payload.products]
+        }
     },
 
     REMOVE_FROM_CART: (state, action) => {
         let newState = state.cart.filter(product => {
-            return product._id !== action._id;
+            return product._id !== action.payload._id;
         });
 
         state.cartOpen = newState.length > 0;
@@ -34,8 +42,8 @@ export const stateReducers = {
     UPDATE_CART_QUANTITY: (state, action) => {
         state.cartOpen = true;
         state.cart = state.cart.map(product => {
-            if (action._id === product._id) {
-                product.purchaseQuantity = action.purchaseQuantity;
+            if (action.payload._id === product._id) {
+                product.purchaseQuantity = action.payload.purchaseQuantity;
             }
             return product;
         });

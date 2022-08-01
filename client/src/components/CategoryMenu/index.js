@@ -1,10 +1,16 @@
 import React, { useEffect } from 'react';
-import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
+//import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
 
 import { useQuery } from '@apollo/client';
 import { QUERY_CATEGORIES } from '../../utils/queries';
 
-import { useStoreContext } from "../../utils/GlobalState";
+//import { useStoreContext } from "../../utils/GlobalState";
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  UPDATE_CATEGORIES, 
+  UPDATE_CURRENT_CATEGORY,
+  selectCategories
+} from '../../utils/redux_state';
 
 import { idbPromise } from '../../utils/helpers';
 
@@ -12,34 +18,39 @@ function CategoryMenu() {//({ setCategory }) {
   //const { data: categoryData } = useQuery(QUERY_CATEGORIES);
   //const categories = categoryData?.categories || [];
 
-  const [state, dispatch] = useStoreContext();
-  const { categories } = state;
+  //const [state, dispatch] = useStoreContext();
+  //const { categories } = state;
+  const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
   const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
 
   useEffect(() => {
     if (categoryData) {
-      dispatch({
+      /*dispatch({
         type: UPDATE_CATEGORIES,
         categories: categoryData.categories
-      });
+      });*/
+      dispatch(UPDATE_CATEGORIES({categories: categoryData.categories}));
       categoryData.categories.forEach(category => {
         idbPromise('categories', 'put', category);
       });
     } else if (!loading) {
       idbPromise('categories', 'get').then(categories => {
-        dispatch({
+        /*dispatch({
           type: UPDATE_CATEGORIES,
           categories: categories
-        });
+        });*/
+        dispatch(UPDATE_CATEGORIES({categories: categories}));
       });
     }
   }, [categoryData, loading, dispatch]);
 
   const handleClick = id => {
-    dispatch({
+    /*dispatch({
       type: UPDATE_CURRENT_CATEGORY,
       currentCategory: id
-    });
+    });*/
+    dispatch(UPDATE_CURRENT_CATEGORY({currentCategory: id}));
   };
 
   return (
