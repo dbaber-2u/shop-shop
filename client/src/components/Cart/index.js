@@ -5,6 +5,7 @@ import './style.css';
 
 import { idbPromise } from "../../utils/helpers";
 
+
 import { useDispatch, useSelector } from 'react-redux';
 import {
   TOGGLE_CART,
@@ -13,10 +14,18 @@ import {
   selectCartOpen
 } from '../../utils/redux_state';
 
+import { QUERY_CHECKOUT } from '../../utils/queries';
+import { loadStripe } from '@stripe/stripe-js';
+import { useLazyQuery } from '@apollo/client';
+
+const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
 const Cart = () => {
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const cartOpen = useSelector(selectCartOpen);
+
+  const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
   useEffect(() => {
     async function getCart() {
@@ -29,6 +38,14 @@ const Cart = () => {
     }
   }, [cart.length, dispatch]);
 
+  useEffect(() => {
+    if (data) {
+      stripePromise.then((res) => {
+        res.redirectToCheckout({ sessionId: data.checkout.session });
+      });
+    }
+  }, [data]);
+
   function toggleCart() {
     dispatch(TOGGLE_CART());
   }
@@ -39,6 +56,20 @@ const Cart = () => {
       sum += item.price * item.purchaseQuantity;
     });
     return sum.toFixed(2);
+  }
+
+  function submitCheckout() {
+    const productIds = [];
+
+    cart.forEach((item) => {
+      for (let i = 0; i < item.purchaseQuantity; i++) {
+        productIds.push(item._id);
+      }
+    });
+
+    getCheckout({
+      variables: { products: productIds }
+    });
   }
 
   if (!cartOpen) {
@@ -64,7 +95,7 @@ const Cart = () => {
             <strong>Total: ${calculateTotal()}</strong>
             {
               Auth.loggedIn() ?
-                <button>
+                <button onClick={submitCheckout}>
                   Checkout
                 </button>
                 :
