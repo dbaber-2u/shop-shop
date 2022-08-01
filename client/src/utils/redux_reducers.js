@@ -14,7 +14,12 @@ export const stateReducers = {
     },
 
     UPDATE_CURRENT_CATEGORY: (state, action) => {
+        if(state.currentCategory !== action.payload.currentCategory) {
         state.currentCategory = action.payload.currentCategory;
+        }
+        else {
+            state.currentCategory = '';
+        }
     },
 
     ADD_TO_CART: (state, action) => {
